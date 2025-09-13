@@ -1,0 +1,115 @@
+{
+  "workflows": [
+    {
+      "name": "Quick Commerce - Inventory Allocation",
+      "description": "Handles inventory allocation requests from the AI agent",
+      "webhook_url": "/webhook/inventory-allocation",
+      "nodes": [
+        {
+          "name": "Webhook",
+          "type": "webhook",
+          "parameters": {
+            "path": "inventory-allocation",
+            "httpMethod": "POST"
+          }
+        },
+        {
+          "name": "Process Allocation",
+          "type": "function",
+          "parameters": {
+            "functionCode": "// Process allocation data\nconst { product, total_units, allocations, action_id } = $input.first().json;\n\n// Log the allocation\nconsole.log(`Processing allocation: ${total_units} units of ${product}`);\nconsole.log('Allocations:', allocations);\n\n// Send email notification to warehouse team\nreturn {\n  product,\n  total_units,\n  allocations,\n  action_id,\n  timestamp: new Date().toISOString(),\n  status: 'processed'\n};"
+          }
+        },
+        {
+          "name": "Send Email Notification",
+          "type": "email",
+          "parameters": {
+            "to": "warehouse@company.com",
+            "subject": "Inventory Allocation Request - {{$json.product}}",
+            "message": "New inventory allocation request:\n\nProduct: {{$json.product}}\nTotal Units: {{$json.total_units}}\n\nAllocations:\n{{$json.allocations}}\n\nPlease process this allocation immediately for quick commerce delivery.\n\nAction ID: {{$json.action_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quick Commerce - Restock Order",
+      "description": "Handles restock order requests from the AI agent",
+      "webhook_url": "/webhook/restock-order",
+      "nodes": [
+        {
+          "name": "Webhook",
+          "type": "webhook",
+          "parameters": {
+            "path": "restock-order",
+            "httpMethod": "POST"
+          }
+        },
+        {
+          "name": "Process Restock",
+          "type": "function",
+          "parameters": {
+            "functionCode": "// Process restock data\nconst { city, product, quantity, action_id } = $input.first().json;\n\n// Log the restock request\nconsole.log(`Processing restock: ${quantity} units of ${product} for ${city}`);\n\n// Get supplier information (mock)\nconst supplier = {\n  name: 'Supplier_A',\n  email: 'orders@supplier-a.com',\n  phone: '+91-9876543210'\n};\n\nreturn {\n  city,\n  product,\n  quantity,\n  action_id,\n  supplier,\n  timestamp: new Date().toISOString(),\n  status: 'processed'\n};"
+          }
+        },
+        {
+          "name": "Send Supplier Email",
+          "type": "email",
+          "parameters": {
+            "to": "{{$json.supplier.email}}",
+            "subject": "Urgent Restock Order - {{$json.product}} for {{$json.city}}",
+            "message": "URGENT RESTOCK ORDER\n\nCity: {{$json.city}}\nProduct: {{$json.product}}\nQuantity: {{$json.quantity}} units\n\nThis is an urgent request for quick commerce operations. Please expedite delivery.\n\nContact: warehouse@company.com\nAction ID: {{$json.action_id}}"
+          }
+        },
+        {
+          "name": "Send Internal Alert",
+          "type": "email",
+          "parameters": {
+            "to": "operations@company.com",
+            "subject": "Restock Order Processed - {{$json.product}}",
+            "message": "Restock order has been processed:\n\nCity: {{$json.city}}\nProduct: {{$json.product}}\nQuantity: {{$json.quantity}}\nSupplier: {{$json.supplier.name}}\n\nAction ID: {{$json.action_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quick Commerce - Alert System",
+      "description": "Handles alert notifications from the AI agent",
+      "webhook_url": "/webhook/alert",
+      "nodes": [
+        {
+          "name": "Webhook",
+          "type": "webhook",
+          "parameters": {
+            "path": "alert",
+            "httpMethod": "POST"
+          }
+        },
+        {
+          "name": "Process Alert",
+          "type": "function",
+          "parameters": {
+            "functionCode": "// Process alert data\nconst { message, priority, recipients, action_id } = $input.first().json;\n\n// Log the alert\nconsole.log(`Processing ${priority} priority alert: ${message}`);\n\n// Determine urgency based on priority\nconst urgency = {\n  'low': 'LOW PRIORITY',\n  'medium': 'MEDIUM PRIORITY',\n  'high': 'HIGH PRIORITY',\n  'critical': 'CRITICAL ALERT - IMMEDIATE ACTION REQUIRED'\n}[priority] || 'MEDIUM PRIORITY';\n\nreturn {\n  message,\n  priority,\n  urgency,\n  recipients,\n  action_id,\n  timestamp: new Date().toISOString(),\n  status: 'processed'\n};"
+          }
+        },
+        {
+          "name": "Send Alert Email",
+          "type": "email",
+          "parameters": {
+            "to": "{{$json.recipients}}",
+            "subject": "{{$json.urgency}} - Quick Commerce Operations",
+            "message": "{{$json.urgency}}\n\nMessage: {{$json.message}}\n\nTimestamp: {{$json.timestamp}}\nAction ID: {{$json.action_id}}\n\nThis is an automated alert from the Quick Commerce AI Operations Manager."
+          }
+        },
+        {
+          "name": "Send Slack Notification",
+          "type": "slack",
+          "parameters": {
+            "channel": "#operations",
+            "message": "{{$json.urgency}}\n\n{{$json.message}}\n\nAction ID: {{$json.action_id}}",
+            "username": "QuickCommerce AI"
+          }
+        }
+      ]
+    }
+  ]
+}

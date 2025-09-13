@@ -1,0 +1,87 @@
+8) Implementation - step-by-step checklist (concrete tasks)
+
+Follow these ordered steps — each is a deliverable you can tick off:
+
+Phase 0 — Prep
+
+ Create GitHub repo + README (requirement for deliverables). 
+
+EQREV_Hackathon_Agentic_AI
+
+ Provision Postgres (Neon / Supabase) and create DB schema.
+
+ Set up n8n instance (cloud or Docker) and obtain webhook base URL.
+
+Phase 1 — Data & ETL
+
+ Load sample CSVs (sales & inventory provided in brief) into DB (or DuckDB for dev). 
+
+EQREV_Hackathon_Agentic_AI
+
+ Write ETL scripts to clean, aggregate daily sales, and update inventory snapshots.
+
+ Create SQL views for common queries (7-day_sales_by_city, avg_3day_sales_by_product_city).
+
+Phase 2 — Forecasting & analytics
+
+ Implement baseline rolling-average forecasts.
+
+ Implement Prophet model and store forecasts in a forecasts table.
+
+ Unit tests for forecast accuracy on historical data.
+
+Phase 3 — Decision logic & agent
+
+ Implement core allocation & reorder logic (functions with clear inputs/outputs).
+
+ Wrap DB queries as safe tools for LangChain (only allow certain SQL templates / aggregates).
+
+ Build LangChain agent that:
+
+Receives user text
+
+Chooses which tools to call
+
+Returns recommended action(s) + rationale
+
+ Add logging/audit for agent decisions.
+
+Phase 4 — Automation (n8n)
+
+ Build n8n workflows:
+
+Warehouse notification (email + DB update)
+
+Supplier PO creation (email or API)
+
+Allocation DB update flow
+
+ Test each webhook with sample payloads.
+
+Phase 5 — Frontend / Integration
+
+ Build Streamlit UI: dashboards, agent console, action confirmation modals.
+
+ Hook frontend to backend API endpoints for ask_agent, get_dashboard, execute_action.
+
+ Display response + allow “Execute” (which calls backend endpoint that posts webhook to n8n).
+
+Phase 6 — Deployment
+
+ Deploy frontend to Hugging Face Spaces or Streamlit Cloud. 
+
+EQREV_Hackathon_Agentic_AI
+
+ Deploy backend (FastAPI) to Render/Railway or run alongside frontend if supported.
+
+ Configure DB connection & environment variables securely (no secrets in repo).
+
+Phase 7 — Testing & Demo prep
+
+ Implement the example scenarios from the brief and record a demo script with the exact queries. 
+
+EQREV_Hackathon_Agentic_AI
+
+ Smoke tests for all n8n flows ensuring idempotency.
+
+ Create README with setup + “How to run locally” + deployed URL.
